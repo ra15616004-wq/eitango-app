@@ -13,9 +13,16 @@
         currentIndex: 0,
         sessionMemorized: [],
         sessionReview: [],
-        progress: {},       // { categoryId: { memorized: [...ids], needsReview: [...ids] } }
+        progress: {},
         isFlipped: false,
-        firestore: null
+        firestore: null,
+        // リスニングモード用
+        mode: 'flashcard',  // 'flashcard' or 'listening'
+        listeningQuestions: [],
+        listeningIndex: 0,
+        listeningCorrect: 0,
+        listeningWrong: 0,
+        listeningAnswered: false
     };
 
     // --- DOM要素キャッシュ ---
@@ -24,7 +31,9 @@
             login: document.getElementById('login-screen'),
             home: document.getElementById('home-screen'),
             study: document.getElementById('study-screen'),
-            complete: document.getElementById('complete-screen')
+            complete: document.getElementById('complete-screen'),
+            listening: document.getElementById('listening-screen'),
+            listeningComplete: document.getElementById('listening-complete-screen')
         },
         login: {
             input: document.getElementById('user-id-input'),
@@ -255,6 +264,11 @@
     // ============================
     function updateDashboard() {
         let totalMem = 0, totalRev = 0, totalAll = VOCABULARY_DATA.length;
+        const isListening = state.mode === 'listening';
+
+        // セクションタイトル更新
+        const titleEl = document.getElementById('section-title-text');
+        if (titleEl) titleEl.textContent = isListening ? 'カテゴリを選んでリスニング' : 'カテゴリを選んで学習';
 
         // カテゴリグリッド構築
         el.home.categoryGrid.innerHTML = '';
@@ -268,24 +282,44 @@
             totalMem += memCount;
             totalRev += progress.needsReview ? progress.needsReview.length : 0;
 
+            // リスニングモードの場合はリスニングデータの問題数を表示
+            const lsData = LISTENING_DATA[catId] || [];
+            const lsCount = lsData.length;
+
             const card = document.createElement('div');
             card.className = 'category-card';
-            card.onclick = () => startStudy(catId);
-            card.innerHTML = `
-        <div class="category-icon" style="background: ${cat.color}15; color: ${cat.color};">
-          ${cat.icon}
-        </div>
-        <div class="category-info">
-          <div class="category-name">${cat.nameJa}</div>
-          <div class="category-name-en">${cat.name}</div>
-          <div class="category-stats">
-            <div class="category-progress-bar">
-              <div class="category-progress-fill" style="width: ${pct}%"></div>
-            </div>
-            <span class="category-progress-text">${memCount}/${catItems.length}</span>
+            card.onclick = () => isListening ? startListening(catId) : startStudy(catId);
+
+            if (isListening) {
+                card.innerHTML = `
+          <div class="category-icon" style="background: ${cat.color}15; color: ${cat.color};">
+            ${cat.icon}
           </div>
-        </div>
-      `;
+          <div class="category-info">
+            <div class="category-name">${cat.nameJa}</div>
+            <div class="category-name-en">${cat.name}</div>
+            <div class="category-stats">
+              <span class="category-progress-text">🎧 ${lsCount}問</span>
+            </div>
+          </div>
+        `;
+            } else {
+                card.innerHTML = `
+          <div class="category-icon" style="background: ${cat.color}15; color: ${cat.color};">
+            ${cat.icon}
+          </div>
+          <div class="category-info">
+            <div class="category-name">${cat.nameJa}</div>
+            <div class="category-name-en">${cat.name}</div>
+            <div class="category-stats">
+              <div class="category-progress-bar">
+                <div class="category-progress-fill" style="width: ${pct}%"></div>
+              </div>
+              <span class="category-progress-text">${memCount}/${catItems.length}</span>
+            </div>
+          </div>
+        `;
+            }
             el.home.categoryGrid.appendChild(card);
         });
 
@@ -454,6 +488,160 @@
     }
 
     // ============================
+    // リスニングモード
+    // ============================
+    function startListening(categoryId) {
+        state.currentCategory = categoryId;
+        const cat = CATEGORIES[categoryId];
+        const questions = LISTENING_DATA[categoryId] || [];
+
+        if (questions.length === 0) {
+            showToast('このカテゴリにはリスニング問題がありません');
+            return;
+        }
+
+        state.listeningQuestions = shuffleArray([...questions]);
+        state.listeningIndex = 0;
+        state.listeningCorrect = 0;
+        state.listeningWrong = 0;
+
+        document.getElementById('listening-category-name').textContent = `🎧 ${cat.nameJa}`;
+        showListeningQuestion();
+        showScreen('listening');
+    }
+
+    function showListeningQuestion() {
+        const q = state.listeningQuestions[state.listeningIndex];
+        if (!q) return;
+
+        state.listeningAnswered = false;
+        const correctItem = VOCABULARY_DATA.find(v => v.id === q.correctId);
+        if (!correctItem) return;
+
+        // シチュエーション表示
+        document.getElementById('situation-text').textContent = q.situation;
+
+        // プログレス更新
+        const total = state.listeningQuestions.length;
+        const current = state.listeningIndex + 1;
+        document.getElementById('listening-progress-text').textContent = `${current} / ${total}`;
+        document.getElementById('listening-progress-fill').style.width = `${(current / total) * 100}%`;
+
+        // 結果エリアを非表示
+        document.getElementById('listening-result').style.display = 'none';
+
+        // 選択肢をシャッフル生成（正解の日本語 + 不正解2つ）
+        const choices = shuffleArray([
+            { text: correctItem.front, correct: true },
+            { text: q.wrongChoices[0], correct: false },
+            { text: q.wrongChoices[1], correct: false }
+        ]);
+
+        const choicesArea = document.getElementById('choices-area');
+        choicesArea.innerHTML = '';
+        choicesArea.style.display = 'flex';
+
+        choices.forEach(choice => {
+            const btn = document.createElement('button');
+            btn.className = 'choice-btn';
+            btn.textContent = choice.text;
+            btn.onclick = () => handleListeningAnswer(btn, choice.correct, correctItem, choicesArea);
+            choicesArea.appendChild(btn);
+        });
+    }
+
+    function handleListeningAnswer(clickedBtn, isCorrect, correctItem, choicesArea) {
+        if (state.listeningAnswered) return;
+        state.listeningAnswered = true;
+
+        // 全ボタンを無効化
+        Array.from(choicesArea.children).forEach(btn => {
+            btn.classList.add('disabled');
+        });
+
+        if (isCorrect) {
+            clickedBtn.classList.add('correct');
+            state.listeningCorrect++;
+            document.getElementById('result-icon').textContent = '🎉';
+        } else {
+            clickedBtn.classList.add('wrong');
+            state.listeningWrong++;
+            document.getElementById('result-icon').textContent = '😢';
+            // 正解のボタンをハイライト
+            Array.from(choicesArea.children).forEach(btn => {
+                if (btn.textContent === correctItem.front) btn.classList.add('correct');
+            });
+        }
+
+        // 結果表示
+        document.getElementById('result-english').textContent = correctItem.back;
+        document.getElementById('result-phonetics').textContent = correctItem.phonetics;
+        document.getElementById('result-notes').textContent = correctItem.notes;
+
+        setTimeout(() => {
+            choicesArea.style.display = 'none';
+            document.getElementById('listening-result').style.display = 'block';
+            // 正解音声を再生
+            playTextAudio(correctItem.back);
+        }, 600);
+    }
+
+    function nextListeningQuestion() {
+        state.listeningIndex++;
+        if (state.listeningIndex >= state.listeningQuestions.length) {
+            completeListening();
+        } else {
+            showListeningQuestion();
+        }
+    }
+
+    function completeListening() {
+        const cat = CATEGORIES[state.currentCategory];
+        const correct = state.listeningCorrect;
+        const wrong = state.listeningWrong;
+        const total = correct + wrong;
+
+        document.getElementById('listening-complete-category').textContent = `🎧 ${cat.nameJa}`;
+        document.getElementById('listening-complete-correct').textContent = correct;
+        document.getElementById('listening-complete-wrong').textContent = wrong;
+
+        const pct = total > 0 ? Math.round((correct / total) * 100) : 0;
+        let msg;
+        if (pct === 100) msg = '🎉 パーフェクト！リスニング力バッチリです！';
+        else if (pct >= 80) msg = '👏 素晴らしい！ほとんど聞き取れていますね！';
+        else if (pct >= 60) msg = '👍 いい感じ！繰り返し聴いて耳を慣らしましょう。';
+        else msg = '🔄 もう一度チャレンジして、イギリス英語の音に慣れましょう！';
+        document.getElementById('listening-complete-message').textContent = msg;
+
+        showScreen('listeningComplete');
+    }
+
+    function playTextAudio(text) {
+        if (!('speechSynthesis' in window)) return;
+        window.speechSynthesis.cancel();
+        const utterance = new SpeechSynthesisUtterance(text);
+        utterance.lang = 'en-GB';
+        utterance.rate = 0.85;
+        const voices = window.speechSynthesis.getVoices();
+        const gbVoice = voices.find(v => v.lang === 'en-GB') || voices.find(v => v.lang.startsWith('en'));
+        if (gbVoice) utterance.voice = gbVoice;
+        window.speechSynthesis.speak(utterance);
+    }
+
+    function playListeningAudio() {
+        const q = state.listeningQuestions[state.listeningIndex];
+        if (!q) return;
+        const correctItem = VOCABULARY_DATA.find(v => v.id === q.correctId);
+        if (!correctItem) return;
+
+        const btn = document.getElementById('listening-play-btn');
+        btn.classList.add('playing');
+        playTextAudio(correctItem.back);
+
+        setTimeout(() => btn.classList.remove('playing'), 2000);
+    }
+
+    // ============================
     // ユーティリティ
     // ============================
     function shuffleArray(arr) {
@@ -515,6 +703,56 @@
             updateDashboard();
             showScreen('home');
         });
+
+        // --- モード切替 ---
+        const modeFlashcardBtn = document.getElementById('mode-flashcard-btn');
+        const modeListeningBtn = document.getElementById('mode-listening-btn');
+        if (modeFlashcardBtn && modeListeningBtn) {
+            modeFlashcardBtn.addEventListener('click', () => {
+                state.mode = 'flashcard';
+                modeFlashcardBtn.classList.add('active');
+                modeListeningBtn.classList.remove('active');
+                updateDashboard();
+            });
+            modeListeningBtn.addEventListener('click', () => {
+                state.mode = 'listening';
+                modeListeningBtn.classList.add('active');
+                modeFlashcardBtn.classList.remove('active');
+                updateDashboard();
+            });
+        }
+
+        // --- リスニング画面イベント ---
+        const listeningBackBtn = document.getElementById('listening-back-btn');
+        if (listeningBackBtn) {
+            listeningBackBtn.addEventListener('click', () => {
+                updateDashboard();
+                showScreen('home');
+            });
+        }
+
+        const listeningPlayBtn = document.getElementById('listening-play-btn');
+        if (listeningPlayBtn) {
+            listeningPlayBtn.addEventListener('click', playListeningAudio);
+        }
+
+        const listeningNextBtn = document.getElementById('listening-next-btn');
+        if (listeningNextBtn) {
+            listeningNextBtn.addEventListener('click', nextListeningQuestion);
+        }
+
+        // リスニング完了画面
+        const listeningRetryBtn = document.getElementById('listening-retry-btn');
+        if (listeningRetryBtn) {
+            listeningRetryBtn.addEventListener('click', () => startListening(state.currentCategory));
+        }
+        const listeningHomeBtn = document.getElementById('listening-home-btn');
+        if (listeningHomeBtn) {
+            listeningHomeBtn.addEventListener('click', () => {
+                updateDashboard();
+                showScreen('home');
+            });
+        }
 
         // キーボードショートカット
         document.addEventListener('keydown', (e) => {

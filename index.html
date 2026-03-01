@@ -1,14 +1,17 @@
 <!DOCTYPE html>
 <html lang="ja">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="description" content="UK英語ボキャブラリー学習アプリ - イギリス旅行に役立つ中級英単語をフラッシュカードで学習">
   <title>UK English Flashcards | イギリス英語学習</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
+    rel="stylesheet">
   <link rel="stylesheet" href="styles.css">
 </head>
+
 <body>
 
   <!-- ============================== -->
@@ -28,7 +31,7 @@
         <button id="login-btn" class="btn-primary">
           <span>始める</span>
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <path d="M5 12h14M12 5l7 7-7 7"/>
+            <path d="M5 12h14M12 5l7 7-7 7" />
           </svg>
         </button>
       </div>
@@ -57,7 +60,7 @@
         </div>
         <button id="logout-btn" class="btn-icon" title="ログアウト">
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4M16 17l5-5-5-5M21 12H9"/>
+            <path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4M16 17l5-5-5-5M21 12H9" />
           </svg>
         </button>
       </div>
@@ -79,7 +82,16 @@
         </div>
       </div>
 
-      <h3 class="section-title">カテゴリを選んで学習</h3>
+      <div class="mode-toggle">
+        <button class="mode-btn active" id="mode-flashcard-btn" data-mode="flashcard">
+          <span>📝</span> フラッシュカード
+        </button>
+        <button class="mode-btn" id="mode-listening-btn" data-mode="listening">
+          <span>🎧</span> リスニング
+        </button>
+      </div>
+
+      <h3 class="section-title" id="section-title-text">カテゴリを選んで学習</h3>
 
       <div class="category-grid" id="category-grid">
         <!-- JavaScriptで動的生成 -->
@@ -94,7 +106,7 @@
     <header class="study-header">
       <button id="back-to-home-btn" class="btn-icon" title="ホームに戻る">
         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <path d="M19 12H5M12 19l-7-7 7-7"/>
+          <path d="M19 12H5M12 19l-7-7 7-7" />
         </svg>
       </button>
       <div class="study-info">
@@ -176,9 +188,99 @@
     </div>
   </section>
 
+  <!-- ============================== -->
+  <!-- リスニング画面 -->
+  <!-- ============================== -->
+  <section id="listening-screen" class="screen">
+    <header class="study-header listening-header">
+      <button id="listening-back-btn" class="btn-icon" title="ホームに戻る">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M19 12H5M12 19l-7-7 7-7" />
+        </svg>
+      </button>
+      <div class="study-info">
+        <span id="listening-category-name"></span>
+        <span class="study-progress-text" id="listening-progress-text">1 / 6</span>
+      </div>
+      <div style="width:40px"></div>
+    </header>
+
+    <div class="study-progress-bar">
+      <div class="study-progress-fill listening-progress-fill" id="listening-progress-fill"></div>
+    </div>
+
+    <div class="listening-container">
+      <!-- シチュエーション表示 -->
+      <div class="situation-card" id="situation-card">
+        <div class="situation-label">📍 シチュエーション</div>
+        <p class="situation-text" id="situation-text"></p>
+      </div>
+
+      <!-- 音声再生ボタン -->
+      <div class="listening-audio-area">
+        <button id="listening-play-btn" class="listening-play-btn">
+          <svg width="32" height="32" viewBox="0 0 24 24" fill="currentColor">
+            <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
+            <path d="M19.07 4.93a10 10 0 010 14.14" fill="none" stroke="currentColor" stroke-width="2"></path>
+            <path d="M15.54 8.46a5 5 0 010 7.07" fill="none" stroke="currentColor" stroke-width="2"></path>
+          </svg>
+          <span>音声を聴く</span>
+        </button>
+        <p class="listening-hint">この場面で使うフレーズを聴き取ろう！</p>
+      </div>
+
+      <!-- 選択肢 -->
+      <div class="choices-area" id="choices-area">
+        <!-- JavaScriptで動的生成 -->
+      </div>
+
+      <!-- 結果表示（正解/不正解後） -->
+      <div class="listening-result" id="listening-result" style="display:none;">
+        <div class="result-icon" id="result-icon"></div>
+        <div class="result-answer">
+          <div class="result-label">正解</div>
+          <div class="result-english" id="result-english"></div>
+          <div class="result-phonetics" id="result-phonetics"></div>
+          <div class="result-notes" id="result-notes"></div>
+        </div>
+        <button id="listening-next-btn" class="btn-primary">次の問題へ</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================== -->
+  <!-- リスニング完了画面 -->
+  <!-- ============================== -->
+  <section id="listening-complete-screen" class="screen">
+    <div class="complete-container">
+      <div class="complete-icon">🎧</div>
+      <h2>リスニング完了！</h2>
+      <p class="complete-subtitle" id="listening-complete-category"></p>
+
+      <div class="complete-stats">
+        <div class="stat-item stat-memorized">
+          <div class="stat-number" id="listening-complete-correct">0</div>
+          <div class="stat-label">正解</div>
+        </div>
+        <div class="stat-item stat-review">
+          <div class="stat-number" id="listening-complete-wrong">0</div>
+          <div class="stat-label">不正解</div>
+        </div>
+      </div>
+
+      <div class="complete-message" id="listening-complete-message"></div>
+
+      <div class="complete-actions">
+        <button id="listening-retry-btn" class="btn-secondary">もう一度挑戦</button>
+        <button id="listening-home-btn" class="btn-primary">ホームに戻る</button>
+      </div>
+    </div>
+  </section>
+
   <!-- スクリプト読み込み -->
   <script src="vocabulary.js"></script>
   <script src="firebase-config.js"></script>
   <script src="app.js"></script>
 </body>
+
 </html>
