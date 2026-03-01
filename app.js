@@ -515,10 +515,11 @@
         if (!q) return;
 
         state.listeningAnswered = false;
+        state.listeningAudioPlayed = false;
         const correctItem = VOCABULARY_DATA.find(v => v.id === q.correctId);
         if (!correctItem) return;
 
-        // シチュエーション表示
+        // 場面表示
         document.getElementById('situation-text').textContent = q.situation;
 
         // プログレス更新
@@ -530,24 +531,23 @@
         // 結果エリアを非表示
         document.getElementById('listening-result').style.display = 'none';
 
-        // 選択肢をシャッフル生成（正解の日本語 + 不正解2つ）
+        // 選択肢を事前に準備しておくが、まだ表示しない
         const choices = shuffleArray([
             { text: correctItem.front, correct: true },
             { text: q.wrongChoices[0], correct: false },
             { text: q.wrongChoices[1], correct: false }
         ]);
+        state.listeningChoices = choices;
+        state.listeningCorrectItem = correctItem;
 
+        // 選択肢エリアを非表示にする
         const choicesArea = document.getElementById('choices-area');
         choicesArea.innerHTML = '';
-        choicesArea.style.display = 'flex';
+        choicesArea.style.display = 'none';
 
-        choices.forEach(choice => {
-            const btn = document.createElement('button');
-            btn.className = 'choice-btn';
-            btn.textContent = choice.text;
-            btn.onclick = () => handleListeningAnswer(btn, choice.correct, correctItem, choicesArea);
-            choicesArea.appendChild(btn);
-        });
+        // 「音声を聴く」ボタンを再表示
+        document.querySelector('.listening-audio-area').style.display = 'block';
+        document.querySelector('.listening-hint').textContent = '🎧 英語を聴いて、その意味を選びましょう！';
     }
 
     function handleListeningAnswer(clickedBtn, isCorrect, correctItem, choicesArea) {
@@ -639,6 +639,26 @@
         playTextAudio(correctItem.back);
 
         setTimeout(() => btn.classList.remove('playing'), 2000);
+
+        // 音声を聴いた後に選択肢を表示
+        if (!state.listeningAudioPlayed) {
+            state.listeningAudioPlayed = true;
+            document.querySelector('.listening-hint').textContent = '上の音声は何と言っている？';
+
+            setTimeout(() => {
+                const choicesArea = document.getElementById('choices-area');
+                choicesArea.innerHTML = '';
+                choicesArea.style.display = 'flex';
+
+                state.listeningChoices.forEach(choice => {
+                    const btn = document.createElement('button');
+                    btn.className = 'choice-btn';
+                    btn.textContent = choice.text;
+                    btn.onclick = () => handleListeningAnswer(btn, choice.correct, state.listeningCorrectItem, choicesArea);
+                    choicesArea.appendChild(btn);
+                });
+            }, 500);
+        }
     }
 
     // ============================

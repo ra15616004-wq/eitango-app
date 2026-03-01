@@ -190,56 +190,59 @@ const CATEGORIES = {
 };
 
 // ============================
-// シチュエーション再現リスニングデータ
-// 各シーンに: situation(状況説明), correctId(正解の単語ID), wrongChoices(不正解選択肢2つ)
+// リスニングクイズデータ
+// 英語音声を聴いて、その意味（日本語）を3択で選ぶ
+// situation: 場面のヒント（答えは推測できない程度）
+// correctId: 正解のボキャブラリーID
+// wrongChoices: 不正解の日本語選択肢（紛らわしいもの）
 // ============================
 const LISTENING_DATA = {
   airport: [
-    { id: "ls_air_01", situation: "ヒースロー空港に到着。入国審査の列が長い。係員が何か指示しています…", correctId: "airport_001", wrongChoices: ["パスポートを見せてください", "荷物を開けてください"] },
-    { id: "ls_air_02", situation: "入国審査のカウンターに到着。審査官があなたに最初の質問をしています…", correctId: "airport_004", wrongChoices: ["お荷物はいくつですか？", "どちらのホテルにお泊まりですか？"] },
-    { id: "ls_air_03", situation: "飛行機を降りて、預けたスーツケースを探しています。案内表示を見つけたい…", correctId: "airport_002", wrongChoices: ["出発ロビーはどこですか？", "搭乗口はどこですか？"] },
-    { id: "ls_air_04", situation: "セキュリティチェックのエリア。係員があなたのカバンを指差して指示しています…", correctId: "airport_015", wrongChoices: ["靴を脱いでください", "パスポートを出してください"] },
-    { id: "ls_air_05", situation: "チェックインカウンターで、座席の希望を聞かれました。景色を見たいので…", correctId: "airport_024", wrongChoices: ["通路側の席をお願いします", "どの席でも構いません"] },
-    { id: "ls_air_06", situation: "空港からロンドン市内へ向かいたい。高速列車の乗り場を探しています…", correctId: "airport_020", wrongChoices: ["タクシー乗り場はどこですか？", "バス乗り場はどこですか？"] }
+    { id: "ls_air_01", situation: "空港の係員があなたに話しかけています", correctId: "airport_001", wrongChoices: ["パスポートを見せてください", "荷物を開けてください"] },
+    { id: "ls_air_02", situation: "入国審査のカウンターにて", correctId: "airport_004", wrongChoices: ["お荷物はいくつですか？", "どちらのホテルにお泊まりですか？"] },
+    { id: "ls_air_03", situation: "空港の案内板の前で", correctId: "airport_002", wrongChoices: ["出発ロビーはどこですか？", "搭乗口はどこですか？"] },
+    { id: "ls_air_04", situation: "セキュリティチェックにて", correctId: "airport_015", wrongChoices: ["ベルトと靴を外してください", "パスポートを出してください"] },
+    { id: "ls_air_05", situation: "チェックインカウンターにて", correctId: "airport_024", wrongChoices: ["通路側の席をお願いします", "どの席でも構いません"] },
+    { id: "ls_air_06", situation: "空港の到着ロビーにて", correctId: "airport_020", wrongChoices: ["タクシー乗り場はどこですか？", "両替所はどこですか？"] }
   ],
   hotel: [
-    { id: "ls_hot_01", situation: "ホテルのフロントに到着。事前にネットで部屋を押さえてあります…", correctId: "hotel_001", wrongChoices: ["空いている部屋はありますか？", "今日の料金はいくらですか？"] },
-    { id: "ls_hot_02", situation: "部屋に入ったが、バスルームが見当たらない。フロントに電話して確認したい…", correctId: "hotel_002", wrongChoices: ["部屋を変えてもらえますか？", "シャワーが壊れています"] },
-    { id: "ls_hot_03", situation: "朝食の時間。イギリスに来たからには名物料理を食べたい！ウェイターに注文…", correctId: "hotel_004", wrongChoices: ["コンチネンタルブレックファストを", "トーストだけお願いします"] },
-    { id: "ls_hot_04", situation: "2階の部屋へ向かいたいが、荷物が重い。階段以外の移動手段を探したい…", correctId: "hotel_007", wrongChoices: ["階段はどこですか？", "出口はどこですか？"] },
-    { id: "ls_hot_05", situation: "部屋でお茶を入れたいが、お湯を沸かす道具があるか確認したい…", correctId: "hotel_013", wrongChoices: ["コーヒーメーカーはありますか？", "ルームサービスを頼めますか？"] },
-    { id: "ls_hot_06", situation: "チェックアウト。フロントで宿泊料金の明細を確認したい…", correctId: "hotel_023", wrongChoices: ["領収書は要りません", "カードで支払います"] }
+    { id: "ls_hot_01", situation: "ホテルのフロントにて", correctId: "hotel_001", wrongChoices: ["空いている部屋はありますか？", "今日の料金はいくらですか？"] },
+    { id: "ls_hot_02", situation: "ホテルのフロントに電話中", correctId: "hotel_002", wrongChoices: ["部屋を変えてもらえますか？", "シャワーが壊れています"] },
+    { id: "ls_hot_03", situation: "ホテルのレストランにて", correctId: "hotel_004", wrongChoices: ["コンチネンタルブレックファストを", "トーストだけお願いします"] },
+    { id: "ls_hot_04", situation: "ホテルのロビーにて", correctId: "hotel_007", wrongChoices: ["階段はどこですか？", "出口はどこですか？"] },
+    { id: "ls_hot_05", situation: "ホテルの部屋で", correctId: "hotel_013", wrongChoices: ["コーヒーメーカーはありますか？", "ルームサービスを頼めますか？"] },
+    { id: "ls_hot_06", situation: "チェックアウト時", correctId: "hotel_023", wrongChoices: ["領収書は要りません", "延泊できますか？"] }
   ],
   pub: [
-    { id: "ls_pub_01", situation: "パブに入って初めての注文。イギリスビールを一杯飲みたい…", correctId: "pub_005", wrongChoices: ["ワインを一杯ください", "コーラをください"] },
-    { id: "ls_pub_02", situation: "食事が終わって帰りたい。支払いをしたいのでウェイターを呼びます…", correctId: "pub_001", wrongChoices: ["メニューをもらえますか？", "もう一品追加します"] },
-    { id: "ls_pub_03", situation: "メニューの最後のページ。甘いものが食べたい。デザートの選択肢を見たい…", correctId: "pub_003", wrongChoices: ["前菜は何がありますか？", "メインは何がおすすめですか？"] },
-    { id: "ls_pub_04", situation: "注文した料理を家に持って帰りたい。店員に確認してみよう…", correctId: "pub_008", wrongChoices: ["ここで食べます", "配達してもらえますか？"] },
-    { id: "ls_pub_05", situation: "友人と2人でレストランへ行きたい。人気店なので事前に席を確保しておこう…", correctId: "pub_011", wrongChoices: ["今すぐ入れますか？", "待ち時間はどのくらいですか？"] },
-    { id: "ls_pub_06", situation: "友人グループとパブで飲んでいる。今回は自分がみんなの分を奢りたい…", correctId: "pub_018", wrongChoices: ["割り勘にしましょう", "自分の分だけ払います"] }
+    { id: "ls_pub_01", situation: "パブのカウンターにて", correctId: "pub_005", wrongChoices: ["ワインを一杯ください", "コーラをください"] },
+    { id: "ls_pub_02", situation: "レストランでウェイターに", correctId: "pub_001", wrongChoices: ["メニューをもらえますか？", "もう一品追加します"] },
+    { id: "ls_pub_03", situation: "レストランでウェイターに", correctId: "pub_003", wrongChoices: ["前菜は何がありますか？", "メインは何がおすすめですか？"] },
+    { id: "ls_pub_04", situation: "レストランにて", correctId: "pub_008", wrongChoices: ["ここで食べます", "配達してもらえますか？"] },
+    { id: "ls_pub_05", situation: "電話で予約中", correctId: "pub_011", wrongChoices: ["今すぐ入れますか？", "待ち時間はどのくらいですか？"] },
+    { id: "ls_pub_06", situation: "パブで友人たちと", correctId: "pub_018", wrongChoices: ["割り勘にしましょう", "自分の分だけ払います"] }
   ],
   tube: [
-    { id: "ls_tub_01", situation: "ロンドン地下鉄のホームに立っている。電車が到着し、ドアが開く直前のアナウンス…", correctId: "tube_001", wrongChoices: ["ドアが閉まります", "この電車は回送です"] },
-    { id: "ls_tub_02", situation: "オイスターカードの残高が不足。駅の窓口でカードに残高を追加したい…", correctId: "tube_002", wrongChoices: ["新しいカードを買いたいです", "カードを返却したいです"] },
-    { id: "ls_tub_03", situation: "駅の窓口で切符を買いたい。日帰り旅行なので、行きと帰りの切符が必要…", correctId: "tube_003", wrongChoices: ["片道切符をください", "1日乗車券をください"] },
-    { id: "ls_tub_04", situation: "目的の駅に着くには途中で別の路線に乗り換える必要がありそうだ…", correctId: "tube_006", wrongChoices: ["この電車は直通ですか？", "終点はどこですか？"] },
-    { id: "ls_tub_05", situation: "ロンドンの街で道に迷った。通りすがりの人に道順を丁寧に尋ねたい…", correctId: "tube_023", wrongChoices: ["地図を見せてもらえますか？", "タクシーを呼んでください"] },
-    { id: "ls_tub_06", situation: "タクシーに大きなスーツケースを載せたい。運転手がトランクを指している…", correctId: "tube_014", wrongChoices: ["後部座席に置いてください", "屋根の上に載せてください"] }
+    { id: "ls_tub_01", situation: "地下鉄のホームでアナウンスが流れています", correctId: "tube_001", wrongChoices: ["ドアが閉まります", "この電車は回送です"] },
+    { id: "ls_tub_02", situation: "駅の窓口にて", correctId: "tube_002", wrongChoices: ["新しいカードを買いたいです", "カードを返却したいです"] },
+    { id: "ls_tub_03", situation: "駅の窓口にて", correctId: "tube_003", wrongChoices: ["片道切符をください", "1日乗車券をください"] },
+    { id: "ls_tub_04", situation: "駅のホームにて", correctId: "tube_006", wrongChoices: ["この電車は直通ですか？", "終点はどこですか？"] },
+    { id: "ls_tub_05", situation: "通りで地元の人に", correctId: "tube_023", wrongChoices: ["地図を見せてもらえますか？", "タクシーを呼んでください"] },
+    { id: "ls_tub_06", situation: "タクシーの運転手に", correctId: "tube_014", wrongChoices: ["後部座席に置いてください", "ここで降ります"] }
   ],
   shopping: [
-    { id: "ls_shp_01", situation: "お土産を選び終えて支払いをしたい。レジの場所を店員に聞こう…", correctId: "shop_001", wrongChoices: ["出口はどこですか？", "試着室はどこですか？"] },
-    { id: "ls_shp_02", situation: "洋服店に入ったら店員が近づいてきた。まだ何も決めていないので…", correctId: "shop_002", wrongChoices: ["おすすめはありますか？", "サイズを教えてください"] },
-    { id: "ls_shp_03", situation: "気に入った服を見つけた！着てみてからサイズを確認したい…", correctId: "shop_006", wrongChoices: ["これを買います", "色違いはありますか？"] },
-    { id: "ls_shp_04", situation: "買い物を済ませてレジへ。店員が袋について何か言っている…", correctId: "shop_007", wrongChoices: ["ギフト包装をお願いします", "配送してもらえますか？"] },
-    { id: "ls_shp_05", situation: "旅行者として税金の還付を受けたい。レジで確認してみよう…", correctId: "shop_010", wrongChoices: ["学生割引はありますか？", "セール品はどこですか？"] },
-    { id: "ls_shp_06", situation: "レジで支払い。スマホをかざすだけで支払いたいが対応しているか…", correctId: "shop_017", wrongChoices: ["現金で支払います", "クレジットカードで支払います"] }
+    { id: "ls_shp_01", situation: "お店で店員に", correctId: "shop_001", wrongChoices: ["出口はどこですか？", "試着室はどこですか？"] },
+    { id: "ls_shp_02", situation: "洋服店で店員に", correctId: "shop_002", wrongChoices: ["おすすめはありますか？", "サイズを教えてください"] },
+    { id: "ls_shp_03", situation: "洋服店で店員に", correctId: "shop_006", wrongChoices: ["これを買います", "色違いはありますか？"] },
+    { id: "ls_shp_04", situation: "レジにて", correctId: "shop_007", wrongChoices: ["ギフト包装をお願いします", "配送してもらえますか？"] },
+    { id: "ls_shp_05", situation: "レジにて", correctId: "shop_010", wrongChoices: ["学生割引はありますか？", "セール品はどこですか？"] },
+    { id: "ls_shp_06", situation: "レジにて", correctId: "shop_017", wrongChoices: ["現金で支払います", "クレジットカードで支払います"] }
   ],
   emergencies: [
-    { id: "ls_emg_01", situation: "道端で人が倒れた！すぐに緊急通報しなければ！", correctId: "emergency_001", wrongChoices: ["警察を呼んでください", "消防車を呼んでください"] },
-    { id: "ls_emg_02", situation: "体調が悪くなった。病院に行く前に、近くで薬を買える場所を探したい…", correctId: "emergency_003", wrongChoices: ["病院はどこですか？", "救急車を呼んでください"] },
-    { id: "ls_emg_03", situation: "ホテルの部屋でパスポートが見当たらない。最後に見たのはいつだったか…", correctId: "emergency_004", wrongChoices: ["財布を盗まれました", "カギを失くしました"] },
-    { id: "ls_emg_04", situation: "頭が痛くて辛い。近くの薬局に入って、イギリスで一般的な頭痛薬を求めたい…", correctId: "emergency_009", wrongChoices: ["風邪薬はありますか？", "胃薬はありますか？"] },
-    { id: "ls_emg_05", situation: "相手の英語が速すぎて聞き取れない。もう少しゆっくり話してもらいたい…", correctId: "emergency_016", wrongChoices: ["もう一度言ってもらえますか？", "紙に書いてもらえますか？"] },
-    { id: "ls_emg_06", situation: "街歩き中に完全に道が分からなくなった。近くの人に助けを求めたい…", correctId: "emergency_014", wrongChoices: ["タクシーを呼んでください", "地図を買いたいです"] }
+    { id: "ls_emg_01", situation: "緊急事態が発生！", correctId: "emergency_001", wrongChoices: ["警察を呼んでください", "消防車を呼んでください"] },
+    { id: "ls_emg_02", situation: "体調が悪い時に", correctId: "emergency_003", wrongChoices: ["病院はどこですか？", "救急車を呼んでください"] },
+    { id: "ls_emg_03", situation: "ホテルのフロントに電話", correctId: "emergency_004", wrongChoices: ["財布を盗まれました", "カギを失くしました"] },
+    { id: "ls_emg_04", situation: "薬局の店員に", correctId: "emergency_009", wrongChoices: ["風邪薬はありますか？", "胃薬はありますか？"] },
+    { id: "ls_emg_05", situation: "会話の相手に", correctId: "emergency_016", wrongChoices: ["もう一度言ってもらえますか？", "紙に書いてもらえますか？"] },
+    { id: "ls_emg_06", situation: "通りで地元の人に", correctId: "emergency_014", wrongChoices: ["タクシーを呼んでください", "地図を買いたいです"] }
   ]
 };
