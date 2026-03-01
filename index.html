@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="UK英語ボキャブラリー学習アプリ - イギリス旅行に役立つ中級英単語をフラッシュカードで学習">
+  <title>UK English Flashcards | イギリス英語学習</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+  <!-- ============================== -->
+  <!-- ログイン画面 -->
+  <!-- ============================== -->
+  <section id="login-screen" class="screen active">
+    <div class="login-container">
+      <div class="login-logo">
+        <div class="logo-icon">🇬🇧</div>
+        <h1>UK English<br><span>Flashcards</span></h1>
+        <p class="login-subtitle">イギリス旅行に役立つ英単語を学ぼう</p>
+      </div>
+      <div class="login-form">
+        <label for="user-id-input">ユーザーID</label>
+        <input type="text" id="user-id-input" placeholder="あなたのIDを入力..." autocomplete="off">
+        <p class="login-hint">※ 任意のIDで学習を開始できます</p>
+        <button id="login-btn" class="btn-primary">
+          <span>始める</span>
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M5 12h14M12 5l7 7-7 7"/>
+          </svg>
+        </button>
+      </div>
+      <div class="login-footer">
+        <p>🔄 Firebase Cloudでデバイス間同期</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================== -->
+  <!-- ホーム画面（ダッシュボード） -->
+  <!-- ============================== -->
+  <section id="home-screen" class="screen">
+    <header class="app-header">
+      <div class="header-left">
+        <div class="header-flag">🇬🇧</div>
+        <div>
+          <h2>UK English Flashcards</h2>
+          <p class="header-user" id="header-user-name"></p>
+        </div>
+      </div>
+      <div class="header-right">
+        <div class="sync-status" id="sync-status">
+          <span class="sync-dot"></span>
+          <span class="sync-text">ローカル</span>
+        </div>
+        <button id="logout-btn" class="btn-icon" title="ログアウト">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4M16 17l5-5-5-5M21 12H9"/>
+          </svg>
+        </button>
+      </div>
+    </header>
+
+    <main class="dashboard">
+      <div class="dashboard-summary">
+        <div class="summary-card">
+          <div class="summary-number" id="total-memorized">0</div>
+          <div class="summary-label">覚えた</div>
+        </div>
+        <div class="summary-card">
+          <div class="summary-number" id="total-review">0</div>
+          <div class="summary-label">復習が必要</div>
+        </div>
+        <div class="summary-card">
+          <div class="summary-number" id="total-remaining">0</div>
+          <div class="summary-label">未学習</div>
+        </div>
+      </div>
+
+      <h3 class="section-title">カテゴリを選んで学習</h3>
+
+      <div class="category-grid" id="category-grid">
+        <!-- JavaScriptで動的生成 -->
+      </div>
+    </main>
+  </section>
+
+  <!-- ============================== -->
+  <!-- 学習画面（フラッシュカード） -->
+  <!-- ============================== -->
+  <section id="study-screen" class="screen">
+    <header class="study-header">
+      <button id="back-to-home-btn" class="btn-icon" title="ホームに戻る">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M19 12H5M12 19l-7-7 7-7"/>
+        </svg>
+      </button>
+      <div class="study-info">
+        <span id="study-category-name"></span>
+        <span class="study-progress-text" id="study-progress-text">1 / 10</span>
+      </div>
+      <button id="audio-btn" class="btn-icon" title="音声を再生">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
+          <path d="M19.07 4.93a10 10 0 010 14.14M15.54 8.46a5 5 0 010 7.07"></path>
+        </svg>
+      </button>
+    </header>
+
+    <div class="study-progress-bar">
+      <div class="study-progress-fill" id="study-progress-fill"></div>
+    </div>
+
+    <div class="flashcard-container">
+      <div class="flashcard" id="flashcard">
+        <div class="flashcard-inner" id="flashcard-inner">
+          <!-- 表面（日本語） -->
+          <div class="flashcard-front">
+            <div class="card-label">日本語</div>
+            <div class="card-text" id="card-front-text"></div>
+            <div class="card-tap-hint">タップしてめくる</div>
+          </div>
+          <!-- 裏面（英語） -->
+          <div class="flashcard-back">
+            <div class="card-label">UK English</div>
+            <div class="card-text-english" id="card-back-text"></div>
+            <div class="card-phonetics" id="card-phonetics"></div>
+            <div class="card-notes" id="card-notes"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="action-buttons" id="action-buttons">
+      <button id="review-btn" class="btn-action btn-review">
+        <span>🔄</span>
+        <span>復習する</span>
+        <span class="key-hint">← キー</span>
+      </button>
+      <button id="memorized-btn" class="btn-action btn-memorized">
+        <span>✅</span>
+        <span>覚えた！</span>
+        <span class="key-hint">→ キー</span>
+      </button>
+    </div>
+  </section>
+
+  <!-- ============================== -->
+  <!-- 完了画面 -->
+  <!-- ============================== -->
+  <section id="complete-screen" class="screen">
+    <div class="complete-container">
+      <div class="complete-icon">🎉</div>
+      <h2>セッション完了！</h2>
+      <p class="complete-subtitle" id="complete-category-name"></p>
+
+      <div class="complete-stats">
+        <div class="stat-item stat-memorized">
+          <div class="stat-number" id="complete-memorized">0</div>
+          <div class="stat-label">覚えた</div>
+        </div>
+        <div class="stat-item stat-review">
+          <div class="stat-number" id="complete-review">0</div>
+          <div class="stat-label">復習が必要</div>
+        </div>
+      </div>
+
+      <div class="complete-message" id="complete-message"></div>
+
+      <div class="complete-actions">
+        <button id="retry-btn" class="btn-secondary">もう一度学習する</button>
+        <button id="home-btn" class="btn-primary">ホームに戻る</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- スクリプト読み込み -->
+  <script src="vocabulary.js"></script>
+  <script src="firebase-config.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
