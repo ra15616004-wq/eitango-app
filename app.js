@@ -239,11 +239,19 @@
         state.userId = userId;
         el.home.userName.textContent = `ID: ${userId}`;
 
-        // Firebase初期化
-        await initFirebase();
+        try {
+            // Firebase初期化
+            await initFirebase();
+        } catch (e) {
+            console.warn('[eitango] Firebase初期化スキップ:', e);
+        }
 
-        // 進捗読み込み
-        await loadProgress();
+        try {
+            // 進捗読み込み
+            await loadProgress();
+        } catch (e) {
+            console.warn('[eitango] 進捗読み込みスキップ:', e);
+        }
 
         // リアルタイム同期開始
         startRealtimeSync();
