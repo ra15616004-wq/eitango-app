@@ -283,7 +283,7 @@
             totalRev += progress.needsReview ? progress.needsReview.length : 0;
 
             // リスニングモードの場合はリスニングデータの問題数を表示
-            const lsData = LISTENING_DATA[catId] || [];
+            const lsData = typeof LISTENING_DATA !== "undefined" ? LISTENING_DATA.filter(q => q.category === catId) : [];
             const lsCount = lsData.length;
 
             const card = document.createElement('div');
@@ -493,7 +493,7 @@
     function startListening(categoryId) {
         state.currentCategory = categoryId;
         const cat = CATEGORIES[categoryId];
-        const questions = LISTENING_DATA[categoryId] || [];
+        const questions = typeof LISTENING_DATA !== "undefined" ? LISTENING_DATA.filter(q => q.category === categoryId) : [];
 
         if (questions.length === 0) {
             showToast('このカテゴリにはリスニング問題がありません');
@@ -516,8 +516,6 @@
 
         state.listeningAnswered = false;
         state.listeningAudioPlayed = false;
-        const correctItem = VOCABULARY_DATA.find(v => v.id === q.correctId);
-        if (!correctItem) return;
 
         // 場面表示
         document.getElementById('situation-text').textContent = q.situation;
@@ -532,13 +530,9 @@
         document.getElementById('listening-result').style.display = 'none';
 
         // 選択肢を事前に準備しておくが、まだ表示しない
-        const choices = shuffleArray([
-            { text: correctItem.front, correct: true },
-            { text: q.wrongChoices[0], correct: false },
-            { text: q.wrongChoices[1], correct: false }
-        ]);
+        const choices = shuffleArray(q.options);
         state.listeningChoices = choices;
-        state.listeningCorrectItem = correctItem;
+        state.listeningQuestionItem = q; // 現在の質問データ
 
         // 選択肢エリアを非表示にする
         const choicesArea = document.getElementById('choices-area');
@@ -547,10 +541,10 @@
 
         // 「音声を聴く」ボタンを再表示
         document.querySelector('.listening-audio-area').style.display = 'block';
-        document.querySelector('.listening-hint').textContent = '🎧 英語を聴いて、その意味を選びましょう！';
+        document.querySelector('.listening-hint').textContent = '🎧 英語を聴いて、適切な返答を選びましょう！';
     }
 
-    function handleListeningAnswer(clickedBtn, isCorrect, correctItem, choicesArea) {
+    function handleListeningAnswer(clickedBtn, isCorrect, qItem, choicesArea) {
         if (state.listeningAnswered) return;
         state.listeningAnswered = true;
 
@@ -558,6 +552,8 @@
         Array.from(choicesArea.children).forEach(btn => {
             btn.classList.add('disabled');
         });
+
+        const correctOpt = qItem.options.find(o => o.isCorrect);
 
         if (isCorrect) {
             clickedBtn.classList.add('correct');
@@ -569,20 +565,20 @@
             document.getElementById('result-icon').textContent = '😢';
             // 正解のボタンをハイライト
             Array.from(choicesArea.children).forEach(btn => {
-                if (btn.textContent === correctItem.front) btn.classList.add('correct');
+                if (btn.textContent === correctOpt.text) btn.classList.add('correct');
             });
         }
 
         // 結果表示
-        document.getElementById('result-english').textContent = correctItem.back;
-        document.getElementById('result-phonetics').textContent = correctItem.phonetics;
-        document.getElementById('result-notes').textContent = correctItem.notes;
+        document.getElementById('result-english').textContent = correctOpt.text;
+        document.getElementById('result-phonetics').textContent = '🎧 聞き取り: ' + qItem.audioPhrase;
+        document.getElementById('result-notes').textContent = qItem.explanation;
 
         setTimeout(() => {
             choicesArea.style.display = 'none';
             document.getElementById('listening-result').style.display = 'block';
             // 正解音声を再生
-            playTextAudio(correctItem.back);
+            playTextAudio(correctOpt.text);
         }, 600);
     }
 
@@ -631,19 +627,17 @@
     function playListeningAudio() {
         const q = state.listeningQuestions[state.listeningIndex];
         if (!q) return;
-        const correctItem = VOCABULARY_DATA.find(v => v.id === q.correctId);
-        if (!correctItem) return;
 
         const btn = document.getElementById('listening-play-btn');
         btn.classList.add('playing');
-        playTextAudio(correctItem.back);
+        playTextAudio(q.audioPhrase);
 
         setTimeout(() => btn.classList.remove('playing'), 2000);
 
         // 音声を聴いた後に選択肢を表示
         if (!state.listeningAudioPlayed) {
             state.listeningAudioPlayed = true;
-            document.querySelector('.listening-hint').textContent = '上の音声は何と言っている？';
+            document.querySelector('.listening-hint').textContent = 'あなたならどう答えますか？';
 
             setTimeout(() => {
                 const choicesArea = document.getElementById('choices-area');
@@ -654,7 +648,7 @@
                     const btn = document.createElement('button');
                     btn.className = 'choice-btn';
                     btn.textContent = choice.text;
-                    btn.onclick = () => handleListeningAnswer(btn, choice.correct, state.listeningCorrectItem, choicesArea);
+                    btn.onclick = () => handleListeningAnswer(btn, choice.isCorrect, state.listeningQuestionItem, choicesArea);
                     choicesArea.appendChild(btn);
                 });
             }, 500);
